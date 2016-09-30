@@ -54,6 +54,7 @@
     <Compile Include="CalculoPontoTests.cs" />
     <Compile Include="CustomAsserts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Totalizador\TotalizadorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PontoPortaria1510\PontoPortaria1510.csproj">

@@ -1,14 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PontoPortaria1510;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static PontoPortaria1510Tests.CustomAsserts;
 using System.Text.RegularExpressions;
 
-namespace PontoPortaria1510.Tests
+namespace PontoPortaria1510.Calculo.Tests
 {
     [TestClass()]
     public class CalculoPontoTests : CalculoPonto
@@ -16,8 +12,8 @@ namespace PontoPortaria1510.Tests
         [TestMethod()]
         public void CalculaDiaPontoTest()
         {
-            DateTime[] horario,batidas;
-            DiaPonto diaPonto;
+            DateTime[] horario, batidas;
+            ResultadoDiaPonto diaPonto;
             horario = Regex.Split("13:15	17:55	18:55	23:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             batidas = Regex.Split("13:15	17:53	18:56	23:10", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             diaPonto = CalculaDiaPonto(horario, batidas);
@@ -48,7 +44,7 @@ namespace PontoPortaria1510.Tests
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.Debito);
             Assert.AreEqual(TimeSpan.FromMinutes(120), diaPonto.Credito);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.AdicionalNoturno);
-            
+
 
             horario = Regex.Split("10:00	12:00	13:15	17:55", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             batidas = Regex.Split("10:00	11:56	13:27	17:34", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
@@ -81,10 +77,10 @@ namespace PontoPortaria1510.Tests
 
             //Não deve ter adicional noturno sobre justificativa
             horario = Regex.Split("13:15	17:55	18:55	23:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
-            var batidasT = Regex.Split("13:17	17:55	18:55	23:00", @"\s+").Select(x =>new Batida(Convert.ToDateTime(x),BatidaTipo.Justificada)).ToArray();
+            var batidasT = Regex.Split("13:17	17:55	18:55	23:00", @"\s+").Select(x => new Batida(Convert.ToDateTime(x), BatidaTipo.Justificada)).ToArray();
             diaPonto = CalculaDiaPonto(horario, batidasT);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.AdicionalNoturno);
-            
+
         }
 
         [TestMethod()]
@@ -133,7 +129,7 @@ namespace PontoPortaria1510.Tests
 
 
 
-            horario = Regex.Split("13:15	17:55	18:55	23:00",@"\s+").Select(x=>Convert.ToDateTime(x)).ToArray();
+            horario = Regex.Split("13:15	17:55	18:55	23:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             batidas = Regex.Split("13:14	17:54	18:57	23:03", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             relacao = EncontraBatidaDoHorario(horario, batidas);
             Assert.AreEqual(relacao[batidas[0]], new Horario(horario[0], PontoTipo.Entrada));
@@ -186,7 +182,7 @@ namespace PontoPortaria1510.Tests
             horario = Regex.Split("07:30	11:55	13:30	17:53", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             batidas = new DateTime[0];
             relacao = EncontraBatidaDoHorario(horario, batidas);
-            Assert.AreEqual(relacao.Count,0);
+            Assert.AreEqual(relacao.Count, 0);
 
 
 
@@ -236,10 +232,10 @@ namespace PontoPortaria1510.Tests
                 Convert.ToDateTime("17:00"),
             };
 
-           AreSameTime(PontosPertos(horario, batidas, PontoTipo.Saida), new DateTime[] {
+            AreSameTime(PontosPertos(horario, batidas, PontoTipo.Saida), new DateTime[] {
                batidas[1],batidas[3]
            });
-           AreSameTime(PontosPertos(horario, batidas, PontoTipo.Entrada), new DateTime[] {
+            AreSameTime(PontosPertos(horario, batidas, PontoTipo.Entrada), new DateTime[] {
                batidas[2],batidas[0]
            });
 
@@ -253,6 +249,60 @@ namespace PontoPortaria1510.Tests
             AreSameTime(PontosPertos(horario, batidas, PontoTipo.Entrada), new DateTime[] {
                batidas[0]
            });
+        }
+
+        [TestMethod]
+        public void CalculaMesTest()
+        {
+            //List<DataPonto> datas = new List<DataPonto>();
+            //GC.Collect();
+
+            //for (int i = 0; i < 5000; i++)
+            //{
+            //    datas.Add(new DataPonto()
+            //    {
+            //        Horario = Regex.Split("07:30	11:55	13:30	17:53", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray(),
+            //        Batidas = Regex.Split("12:00	14:00	15:10	18:00", @"\s+").Select(x => new Batida(Convert.ToDateTime(x), BatidaTipo.Normal)).ToArray(),
+            //        Data = DateTime.Now.AddDays(i)
+            //    });
+            //}
+
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            //Parallel.ForEach(Partitioner.Create(0, datas.Count), x =>
+            //{
+            //    for (int i = x.Item1; i < x.Item2; i++)
+            //    {
+            //        var item = datas[i];
+            //        item.Ponto = CalculaDiaPonto(item.Horario, item.Batidas);
+
+            //    }
+            //});
+            //sw.Stop();
+
+            //datas = new List<DataPonto>();
+            //GC.Collect();
+            //for (int i = 0; i < 5000; i++)
+            //{
+            //    datas.Add(new DataPonto()
+            //    {
+            //        Horario = Regex.Split("07:30	11:55	13:30	17:53", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray(),
+            //        Batidas = Regex.Split("12:00	14:00	15:10	18:00", @"\s+").Select(x => new Batida(Convert.ToDateTime(x), BatidaTipo.Normal)).ToArray(),
+            //        Data = DateTime.Now.AddDays(i)
+            //    });
+            //}
+
+
+            //Stopwatch sw2 = new Stopwatch();
+            //sw2.Start();
+            //foreach (var item in datas)
+            //{
+            //    item.Ponto = CalculaDiaPonto(item.Horario, item.Batidas);
+            //}
+            //sw2.Stop();
+            //var better = (sw.ElapsedTicks < sw2.ElapsedTicks?"Parallel":"Sequential");
+            //Assert.Fail($"Parallel {sw.Elapsed}   Sequencial {sw2.Elapsed}  so {better} is better");
+
         }
     }
 }

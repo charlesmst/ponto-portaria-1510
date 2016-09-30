@@ -1,15 +1,22 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
-namespace PontoPortaria1510
+namespace PontoPortaria1510.Calculo
 {
     public class CalculoPonto
     {
         public TimeSpan HoraAdicionalNoturnoFim = TimeSpan.FromHours(5);
         public TimeSpan HoraAdicionalNoturnoInicio = TimeSpan.FromHours(22);
-        
-        public DiaPonto CalculaDiaPonto(DateTime[] horario, Batida[] batidas)
+
+        public ResultadoDiaPonto CalculaDiaPonto(DateTime[] horario, DateTime[] batidas)
+        {
+            var b = batidas.Select(x => new Batida(x, BatidaTipo.Normal)).ToArray();
+            return CalculaDiaPonto(horario, b);
+        }
+        public ResultadoDiaPonto CalculaDiaPonto(DateTime[] horario, Batida[] batidas)
         {
             if (horario.Length % 2d != 0d)
                 throw new PontoException("Horário inválido");
@@ -29,7 +36,7 @@ namespace PontoPortaria1510
             //          + CREDITO
             //SAIDA + DEBITO
             //    - CREDITO
-            DiaPonto diaPonto = new DiaPonto();
+            ResultadoDiaPonto diaPonto = new ResultadoDiaPonto();
             var relacao = EncontraBatidaDoHorario(horario, batidasHora);
             var ultimaEntrada = DateTime.MinValue;
             var batidasJaCalculadas = new List<DateTime>();
@@ -141,11 +148,19 @@ namespace PontoPortaria1510
                 diaPonto.Credito = TimeSpan.FromMinutes(0);
             }
             #endregion
-            diaPonto.AdicionalNoturno = calculaAdicionalNoturno(batidas);
+            diaPonto.AdicionalNoturno = CalculaAdicionalNoturno(batidas);
             return diaPonto;
         }
 
-        private TimeSpan calculaAdicionalNoturno(Batida[] batidas)
+        public void CalculaMes(List<DataPonto> pontos)
+        {
+            foreach (var item in pontos)
+            {
+                item.Ponto = CalculaDiaPonto(item.Horario, item.Batidas);
+            }
+        }
+
+        private TimeSpan CalculaAdicionalNoturno(Batida[] batidas)
         {
             var adicional = TimeSpan.FromMinutes(0);
             for (int i = 0; i < batidas.Length; i = i+ 2)
@@ -181,11 +196,7 @@ namespace PontoPortaria1510
             return adicional;
         }
 
-        public DiaPonto CalculaDiaPonto(DateTime[] horario, DateTime[] batidas)
-        {
-            var b = batidas.Select(x => new Batida(x, BatidaTipo.Normal)).ToArray();
-            return CalculaDiaPonto(horario, b);
-        }
+        
         protected Dictionary<DateTime, Horario> EncontraBatidaDoHorario(DateTime[] horarios, DateTime[] batidas)
         {
             //Chave batida, valor horario
@@ -253,7 +264,7 @@ namespace PontoPortaria1510
                             var old = relacao[batidaAtual];
                             relacao[batidaAtual] = horario;
 
-                            if(invalidaPorInconsistenciaCronologica(horarios,indiceHorarioAtual,batidaAtual,relacao))
+                            if(InvalidaPorInconsistenciaCronologica(horarios,indiceHorarioAtual,batidaAtual,relacao))
                             {
                                 relacao[batidaAtual] = old;
                                 continue;
@@ -272,7 +283,7 @@ namespace PontoPortaria1510
                     }
                     else
                     {
-                        if (invalidaPorInconsistenciaCronologica(horarios,indiceHorarioAtual,batidaAtual,relacao))
+                        if (InvalidaPorInconsistenciaCronologica(horarios,indiceHorarioAtual,batidaAtual,relacao))
                             continue;
                         relacao[batidaAtual] = horario;
                         break;
@@ -282,7 +293,7 @@ namespace PontoPortaria1510
             return relacao;
 
         }
-        private bool invalidaPorInconsistenciaCronologica(DateTime[] horarios, int iAtual, DateTime batidaAtual, Dictionary<DateTime, Horario> relacao)
+        private bool InvalidaPorInconsistenciaCronologica(DateTime[] horarios, int iAtual, DateTime batidaAtual, Dictionary<DateTime, Horario> relacao)
         {
             return horarios.Where((x, i) => {
                 //i != iAtual

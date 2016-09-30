@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PontoPortaria1510
+namespace PontoPortaria1510.Calculo
 {
-    public class DiaPonto
+    public class ResultadoDiaPonto
     {
         public TimeSpan Debito { get; set; } = TimeSpan.FromMinutes(0);
         public TimeSpan Credito { get; set; } = TimeSpan.FromMinutes(0);
