@@ -84,6 +84,7 @@ namespace PontoPortaria1510.Tests
             var batidasT = Regex.Split("13:17	17:55	18:55	23:00", @"\s+").Select(x =>new Batida(Convert.ToDateTime(x),BatidaTipo.Justificada)).ToArray();
             diaPonto = CalculaDiaPonto(horario, batidasT);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.AdicionalNoturno);
+            
         }
 
         [TestMethod()]
