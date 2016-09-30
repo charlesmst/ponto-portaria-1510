@@ -23,13 +23,15 @@ namespace PontoPortaria1510.Tests
             diaPonto = CalculaDiaPonto(horario, batidas);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.Debito);
             Assert.AreEqual(TimeSpan.FromMinutes(10), diaPonto.Credito);
+            Assert.AreEqual(TimeSpan.FromMinutes(70), diaPonto.AdicionalNoturno);
+
 
             horario = Regex.Split("13:15	17:55	18:55	23:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             batidas = Regex.Split("13:15	17:55	18:55	23:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             diaPonto = CalculaDiaPonto(horario, batidas);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.Debito);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.Credito);
-
+            Assert.AreEqual(TimeSpan.FromMinutes(60), diaPonto.AdicionalNoturno);
             //Regra dos 10 minutos
 
             horario = Regex.Split("13:15	17:55	18:55	23:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
@@ -37,6 +39,7 @@ namespace PontoPortaria1510.Tests
             diaPonto = CalculaDiaPonto(horario, batidas);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.Debito);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.Credito);
+            Assert.AreEqual(TimeSpan.FromMinutes(60), diaPonto.AdicionalNoturno);
 
 
             horario = Regex.Split("10:00	12:00	13:15	17:55", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
@@ -44,14 +47,15 @@ namespace PontoPortaria1510.Tests
             diaPonto = CalculaDiaPonto(horario, batidas);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.Debito);
             Assert.AreEqual(TimeSpan.FromMinutes(120), diaPonto.Credito);
-
-
+            Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.AdicionalNoturno);
+            
 
             horario = Regex.Split("10:00	12:00	13:15	17:55", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             batidas = Regex.Split("10:00	11:56	13:27	17:34", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             diaPonto = CalculaDiaPonto(horario, batidas);
             Assert.AreEqual(TimeSpan.FromMinutes(37), diaPonto.Debito);
             Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.Credito);
+            Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.AdicionalNoturno);
 
 
             horario = Regex.Split("07:30	12:00	13:30	18:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
@@ -59,12 +63,27 @@ namespace PontoPortaria1510.Tests
             diaPonto = CalculaDiaPonto(horario, batidas);
             Assert.AreEqual(TimeSpan.FromMinutes(36), diaPonto.Debito);
             Assert.AreEqual(TimeSpan.FromMinutes(35), diaPonto.Credito);
+            Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.AdicionalNoturno);
+
 
             horario = Regex.Split("13:15	17:55	18:55	23:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             batidas = Regex.Split("13:10	15:00	15:30	18:00	19:00	21:08	22:08	23:40", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             diaPonto = CalculaDiaPonto(horario, batidas);
             Assert.AreEqual(Convert.ToDateTime("01:35").TimeOfDay, diaPonto.Debito);
             Assert.AreEqual(TimeSpan.FromMinutes(50), diaPonto.Credito);
+            Assert.AreEqual(TimeSpan.FromMinutes(92), diaPonto.AdicionalNoturno);
+
+
+            horario = Regex.Split("05:00	08:00	14:00	17:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
+            batidas = Regex.Split("04:10	08:00	15:30	18:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
+            diaPonto = CalculaDiaPonto(horario, batidas);
+            Assert.AreEqual(TimeSpan.FromMinutes(50), diaPonto.AdicionalNoturno);
+
+            //Não deve ter adicional noturno sobre justificativa
+            horario = Regex.Split("13:15	17:55	18:55	23:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
+            var batidasT = Regex.Split("13:17	17:55	18:55	23:00", @"\s+").Select(x =>new Batida(Convert.ToDateTime(x),BatidaTipo.Justificada)).ToArray();
+            diaPonto = CalculaDiaPonto(horario, batidasT);
+            Assert.AreEqual(TimeSpan.FromMinutes(0), diaPonto.AdicionalNoturno);
         }
 
         [TestMethod()]

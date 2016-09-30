@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Batida.cs" />
+    <Compile Include="BatidaTipo.cs" />
     <Compile Include="CalculoPonto.cs" />
     <Compile Include="DiaPonto.cs" />
     <Compile Include="Horario.cs" />

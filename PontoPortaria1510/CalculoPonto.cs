@@ -6,14 +6,18 @@ namespace PontoPortaria1510
 {
     public class CalculoPonto
     {
-        public DiaPonto CalculaDiaPonto(DateTime[] horario, DateTime[] batidas)
+        public TimeSpan HoraAdicionalNoturnoFim = TimeSpan.FromHours(5);
+        public TimeSpan HoraAdicionalNoturnoInicio = TimeSpan.FromHours(22);
+        
+        public DiaPonto CalculaDiaPonto(DateTime[] horario, Batida[] batidas)
         {
             if (horario.Length % 2d != 0d)
                 throw new PontoException("Horário inválido");
             if (batidas.Length % 2d != 0d)
                 throw new PontoException("Faltam batidas");
-            
-            var batidasRelacionadas = EncontraBatidaDoHorario(horario, batidas);
+
+            var batidasHora = batidas.Select(x => x.Hora).ToArray();
+            var batidasRelacionadas = EncontraBatidaDoHorario(horario, batidasHora);
             //Só pra evitar brete
             if(batidasRelacionadas.Count  % 2 != 0)
             {
@@ -26,7 +30,7 @@ namespace PontoPortaria1510
             //SAIDA + DEBITO
             //    - CREDITO
             DiaPonto diaPonto = new DiaPonto();
-            var relacao = EncontraBatidaDoHorario(horario, batidas);
+            var relacao = EncontraBatidaDoHorario(horario, batidasHora);
             var ultimaEntrada = DateTime.MinValue;
             var batidasJaCalculadas = new List<DateTime>();
 
@@ -80,7 +84,7 @@ namespace PontoPortaria1510
                 //Se é saida, ve todos horários que estão dentro do horário, para ajustar
                 if(item.Value.Tipo == PontoTipo.Saida)
                 {
-                    var dentroHorarios = batidas.Where(x => x.TimeOfDay.TotalMinutes < item.Key.TimeOfDay.TotalMinutes && x.TimeOfDay.TotalMinutes > ultimaEntrada.TimeOfDay.TotalMinutes).ToList();
+                    var dentroHorarios = batidasHora.Where(x => x.TimeOfDay.TotalMinutes < item.Key.TimeOfDay.TotalMinutes && x.TimeOfDay.TotalMinutes > ultimaEntrada.TimeOfDay.TotalMinutes).ToList();
                     if (dentroHorarios.Count % 2 != 0)//Desnecessáuro,mas não custa nada
                         throw new PontoException("Erro no cálculo, quantidade de pontos dentrodo horário inválido");
                     for (int i = 0; i < dentroHorarios.Count; i = i + 2)
@@ -100,7 +104,7 @@ namespace PontoPortaria1510
             //BATIDA SEM RELACAO	
             //CREDITO FIM -INICIO
             //Pega as batidas fora do horário de serviço
-            var batidasNaoCalculadas = batidas.Where(x => !batidasJaCalculadas.Contains(x)).ToList();
+            var batidasNaoCalculadas = batidasHora.Where(x => !batidasJaCalculadas.Contains(x)).ToList();
             if (batidasNaoCalculadas.Count % 2 != 0)//Desnecessáuro,mas não custa nada
                 throw new PontoException("Batida fora do intervalo impar");
 
@@ -137,10 +141,51 @@ namespace PontoPortaria1510
                 diaPonto.Credito = TimeSpan.FromMinutes(0);
             }
             #endregion
-
+            diaPonto.AdicionalNoturno = calculaAdicionalNoturno(batidas);
             return diaPonto;
         }
 
+        private TimeSpan calculaAdicionalNoturno(Batida[] batidas)
+        {
+            var adicional = TimeSpan.FromMinutes(0);
+            for (int i = 0; i < batidas.Length; i = i+ 2)
+            {
+                //Ponto justificado não conta para adicional noturno
+                if(batidas[i].Tipo == BatidaTipo.Justificada || batidas[i + 1].Tipo == BatidaTipo.Justificada)
+                {
+                    continue;
+                }
+                var entrada = batidas[i].Hora.TimeOfDay;
+                var saida = batidas[i+1].Hora.TimeOfDay;
+                if (entrada.CompareTo(HoraAdicionalNoturnoFim) < 0)
+                {
+                    if(saida.CompareTo(HoraAdicionalNoturnoFim) <= 0)
+                    {
+                        adicional = adicional.Add(saida.Subtract(entrada));
+                    }else
+                    {
+                        adicional = adicional.Add(HoraAdicionalNoturnoFim.Subtract(entrada));
+                    }
+                }
+                if(saida.CompareTo(HoraAdicionalNoturnoInicio) > 0)
+                {
+                    if(entrada.CompareTo(HoraAdicionalNoturnoInicio) > 0)
+                    {
+                        adicional = adicional.Add(saida.Subtract(entrada));
+                    }else
+                    {
+                        adicional = adicional.Add(saida.Subtract(HoraAdicionalNoturnoInicio));
+                    }
+                }
+            }
+            return adicional;
+        }
+
+        public DiaPonto CalculaDiaPonto(DateTime[] horario, DateTime[] batidas)
+        {
+            var b = batidas.Select(x => new Batida(x, BatidaTipo.Normal)).ToArray();
+            return CalculaDiaPonto(horario, b);
+        }
         protected Dictionary<DateTime, Horario> EncontraBatidaDoHorario(DateTime[] horarios, DateTime[] batidas)
         {
             //Chave batida, valor horario
