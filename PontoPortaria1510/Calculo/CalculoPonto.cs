@@ -8,8 +8,18 @@ namespace PontoPortaria1510.Calculo
 {
     public class CalculoPonto
     {
+        /// <summary>
+        /// Hora que termina adicional noturno
+        /// </summary>
         public TimeSpan HoraAdicionalNoturnoFim = TimeSpan.FromHours(5);
+        /// <summary>
+        /// Hora que inicia o adicional noturno
+        /// </summary>
         public TimeSpan HoraAdicionalNoturnoInicio = TimeSpan.FromHours(22);
+        /// <summary>
+        /// Dia que aplica horas 100%
+        /// </summary>
+        public DayOfWeek DiaDesconsoRemunerado = DayOfWeek.Sunday;
 
         public ResultadoDiaPonto CalculaDiaPonto(DateTime[] horario, DateTime[] batidas)
         {
@@ -18,6 +28,8 @@ namespace PontoPortaria1510.Calculo
         }
         public ResultadoDiaPonto CalculaDiaPonto(DateTime[] horario, Batida[] batidas)
         {
+            if(horario == null) 
+                horario = new DateTime[0];           
             if (horario.Length % 2d != 0d)
                 throw new PontoException("Horário inválido");
             if (batidas.Length % 2d != 0d)
@@ -151,13 +163,57 @@ namespace PontoPortaria1510.Calculo
             diaPonto.AdicionalNoturno = CalculaAdicionalNoturno(batidas);
             return diaPonto;
         }
-
-        public void CalculaMes(List<DataPonto> pontos)
+        public List<DataPonto> CalculaMes(List<DataPonto> pontos)
         {
+            if (pontos.Count == 0)
+                return pontos;
+            var map = pontos.Select(x => x.Data.Date);
+            var inicio = map.Min();
+            var fim = map.Max();
+            return CalculaMes(pontos, inicio, fim);
+        }
+        /// <summary>
+        /// Calcula as batidas do mês, e adiciona as datas expeciais entre os pontos(domingo e datas sem batidas)
+        /// </summary>
+        /// <param name="pontos"></param>
+        /// <param name="dataInicio"></param>
+        /// <param name="dataFim"></param>
+        /// <returns></returns>
+        public List<DataPonto> CalculaMes(List<DataPonto> pontos, DateTime dataInicio, DateTime dataFim)
+        {
+            //Filtra as datas que estão no intervalo
+            pontos = pontos.Where(x => x.Data.Date.CompareTo(dataInicio.Date) >= 0 && x.Data.Date.CompareTo(dataFim.Date) <= 0).ToList();
             foreach (var item in pontos)
             {
+                //Quando não tem horário no domingo, coloca como descansoremunerado
+                if (item.TipoData == TipoData.Normal && item.Data.DayOfWeek == DiaDesconsoRemunerado && item.Horario == null)
+                    item.TipoData = TipoData.DescansoRemunerado;
+
+                //Se é feriado, aplica tudo como credito, para o calculo dar certo, passar o horario nulo
+                if (item.TipoData != TipoData.Normal)
+                    item.Horario = null;
                 item.Ponto = CalculaDiaPonto(item.Horario, item.Batidas);
             }
+            //Percorre todos dias e adiciona os que não existem nos pontos
+            int quantidadeDias = (int)dataFim.Date.Subtract(dataInicio.Date).TotalDays;
+            for (int i = 0; i < quantidadeDias; i++)
+            {
+                if(!pontos.Any(x=>x.Data.Date.CompareTo(dataInicio.AddDays(i).Date) == 0))
+                {
+                    pontos.Add(new DataPonto()
+                    {
+                        Batidas = null,
+                        Data = dataInicio.AddDays(i).Date,
+                        Horario = null,
+                        Observacao = "",
+                        Ponto = null,
+                        TipoData = dataInicio.AddDays(i).Date.DayOfWeek == DiaDesconsoRemunerado? TipoData.DescansoRemunerado:TipoData.Normal
+                    });
+                }
+            }
+            //Ordena
+            pontos.Sort((x1, x2) => x1.Data.Date.CompareTo(x2.Data.Date));
+            return pontos;
         }
 
         private TimeSpan CalculaAdicionalNoturno(Batida[] batidas)

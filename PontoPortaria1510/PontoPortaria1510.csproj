@@ -56,6 +56,7 @@
     <Compile Include="PontoException.cs" />
     <Compile Include="PontoTipo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TipoData.cs" />
     <Compile Include="Totalizador\Totalizador.cs" />
     <Compile Include="Totalizador\TotalizadorHoraSemanal.cs" />
   </ItemGroup>

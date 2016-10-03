@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace PontoPortaria1510.Report
 {
-    interface IPontoReport
+    public interface IPontoReport
     {
-        Stream Gerar(PontoReportDados relatorio);
+        void Write(List<PontoReportDados> relatorio, Stream stream);
     }
 }

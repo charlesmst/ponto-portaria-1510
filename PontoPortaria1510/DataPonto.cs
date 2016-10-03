@@ -10,5 +10,7 @@ namespace PontoPortaria1510
         public Batida[] Batidas { get; set; }
         public ResultadoDiaPonto Ponto { get; set; }
         public string Observacao { get; set; }
+        public TipoData TipoData { get; set; } = TipoData.Normal;
+        public string LegendaTipoHorario { get; set; }
     }
 }
