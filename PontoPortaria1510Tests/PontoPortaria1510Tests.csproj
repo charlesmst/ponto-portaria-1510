@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="CalculoPontoTests.cs" />
     <Compile Include="CustomAsserts.cs" />
+    <Compile Include="JustificativaTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Totalizador\TotalizadorTests.cs" />
   </ItemGroup>

@@ -87,9 +87,15 @@ namespace PontoPortaria1510.Report.Reports
 
             table.AddCell(new PdfPCell(new Phrase("CNPJ: " + relatorio.Cnpj, fontHeader))
             {
+                Border =  Rectangle.TOP_BORDER,
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                Colspan = 3
+            });
+            table.AddCell(new PdfPCell(new Phrase("Base Horas: " + relatorio.BaseHoras, fontHeader))
+            {
                 Border = Rectangle.RIGHT_BORDER | Rectangle.TOP_BORDER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                Colspan = 4
+                Colspan = 3
             });
             //Fim linha 1
 

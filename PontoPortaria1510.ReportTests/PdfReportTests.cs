@@ -22,6 +22,7 @@ namespace PontoPortaria1510.Report.Tests
             dados.Empresa = "Empresa 1";
             dados.Endereco = "Rua João de Barro";
             dados.Pis = "0000000000000";
+            dados.BaseHoras = "220";
             dados.Funcao = "Programador";
             dados.Funcionario = "Charles Michael Stein";
             dados.DataInicio = Convert.ToDateTime("01/10/2016");

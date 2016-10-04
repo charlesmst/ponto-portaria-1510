@@ -53,6 +53,7 @@
     <Compile Include="DataPonto.cs" />
     <Compile Include="Calculo\ResultadoDiaPonto.cs" />
     <Compile Include="Horario.cs" />
+    <Compile Include="Justificativa.cs" />
     <Compile Include="PontoException.cs" />
     <Compile Include="PontoTipo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

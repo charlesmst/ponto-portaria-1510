@@ -14,7 +14,7 @@ namespace PontoPortaria1510.Report
         public List<DataPonto> Pontos { get; set; }
         public string Endereco { get; set; }
         public string Pis { get; set; }
-
+        public string BaseHoras { get; set; }
         public DateTime DataInicio { get; set; }
         public DateTime DataFim { get; set; }
 

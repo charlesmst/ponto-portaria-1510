@@ -79,6 +79,10 @@ pontos.Add(new DataPonto()
 //Serão calculadas horas 100%
 ```
 
+Para aplicar a justificativa no período, executar antes de calcular as horas extras
+```csharp
+Justificativa.AplicaJustificativa(pontos, "Viagem", Convert.ToDateTime("01/10/2016 07:30"), Convert.ToDateTime("01/10/2016 23:00"));
+```
 Para gerar o relatório no regime de horas extras
 ```csharp
 PontoReportDados dados = new PontoReportDados();
@@ -111,3 +115,4 @@ using (var stream = new FileStream("ponto.pdf", FileMode.Create))
 - [x] Totalizador por regime de horas extras
 - [x] Feriados e descanso remunerado com Hora extra 100%
 - [x] Relatório PDF do funcionário no regime de horas extras
+- [x] Suporte a Período justificado, que não conta como falta
