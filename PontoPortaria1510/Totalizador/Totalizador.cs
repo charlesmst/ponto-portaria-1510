@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PontoPortaria1510.Totalizador
 {
@@ -95,10 +93,10 @@ namespace PontoPortaria1510.Totalizador
             foreach (var totalizador in totalizadores)
             {
                 t.Falta = t.Falta.Add(totalizador.Falta);
-                t.Horas50 = t.Falta.Add(totalizador.Horas50);
-                t.Horas100 = t.Falta.Add(totalizador.Horas100);
-                t.AdicionalNoturno = t.Falta.Add(totalizador.AdicionalNoturno);
-                t.HorasTotalHorario = t.Falta.Add(totalizador.HorasTotalHorario);
+                t.Horas50 = t.Horas50.Add(totalizador.Horas50);
+                t.Horas100 = t.Horas100.Add(totalizador.Horas100);
+                t.AdicionalNoturno = t.AdicionalNoturno.Add(totalizador.AdicionalNoturno);
+                t.HorasTotalHorario = t.HorasTotalHorario.Add(totalizador.HorasTotalHorario);
             }
             return t;
         }

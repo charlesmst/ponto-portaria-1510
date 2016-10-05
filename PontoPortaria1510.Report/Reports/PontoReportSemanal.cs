@@ -10,6 +10,7 @@ namespace PontoPortaria1510.Report.Reports
 {
     class PontoReportSemanal : IPontoReport
     {
+        public PdfPageEventHelper Handler { get; set; }
 
         public void Write(List<PontoReportDados> relatorio, Stream stream)
         {
@@ -26,11 +27,13 @@ namespace PontoPortaria1510.Report.Reports
             {
 
                 var writer = PdfWriter.GetInstance(document, stream);
+                if (Handler != null)
+                    writer.PageEvent = Handler;
                 document.Open();
 
                 foreach (var relatorio in relatorios)
                 {
-                    relatorio.Pontos = calculator.CalculaMes(relatorio.Pontos,relatorio.DataInicio,relatorio.DataFim);
+                    relatorio.Pontos = calculator.CalculaMes(relatorio.Pontos, relatorio.DataInicio, relatorio.DataFim);
                     var totalizadores = totalizador.HoraSemanal(relatorio.Pontos);
                     var totalizadorMes = totalizador.TotalizadorDoMes(totalizadores);
                     var table = CriaTabela(relatorio, totalizadores, totalizadorMes);
@@ -82,30 +85,25 @@ namespace PontoPortaria1510.Report.Reports
             #region Cabeçalho
 
             #region Dados do cabeçalho
-            table.AddCell(new PdfPCell(new Phrase("Empresa: "+relatorio.Empresa, fontHeader))
+            table.AddCell(new PdfPCell(new Phrase("Empresa: " + relatorio.Empresa, fontHeader))
             {
-                Border = Rectangle.LEFT_BORDER | Rectangle.TOP_BORDER ,
+                Border = Rectangle.LEFT_BORDER | Rectangle.TOP_BORDER,
                 VerticalAlignment = Element.ALIGN_MIDDLE,
-                Colspan = 2
+                Colspan = 3
             });
             table.AddCell(new PdfPCell(new Phrase("End: " + relatorio.Endereco, fontHeader))
             {
                 Border = Rectangle.TOP_BORDER,
-                VerticalAlignment = Element.ALIGN_MIDDLE
+                VerticalAlignment = Element.ALIGN_MIDDLE,
+                Colspan = 3,
             });
 
             table.AddCell(new PdfPCell(new Phrase("CNPJ: " + relatorio.Cnpj, fontHeader))
             {
-                Border =  Rectangle.TOP_BORDER,
-                VerticalAlignment = Element.ALIGN_MIDDLE,
-                Colspan = 3
+                Border = Rectangle.TOP_BORDER | Rectangle.RIGHT_BORDER,
+                VerticalAlignment = Element.ALIGN_MIDDLE
             });
-            table.AddCell(new PdfPCell(new Phrase("Base Horas: " + relatorio.BaseHoras, fontHeader))
-            {
-                Border = Rectangle.RIGHT_BORDER | Rectangle.TOP_BORDER,
-                VerticalAlignment = Element.ALIGN_MIDDLE,
-                Colspan = 3
-            });
+            
             //Fim linha 1
 
             table.AddCell(new PdfPCell(new Phrase("Funcionário: " + relatorio.Funcionario, fontHeader))
@@ -125,7 +123,7 @@ namespace PontoPortaria1510.Report.Reports
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Colspan = 3
             });
-            table.AddCell(new PdfPCell(new Phrase("Admissão: " + relatorio.Admissao.ToString(relatorio.FormatoData), fontHeader))
+            table.AddCell(new PdfPCell(new Phrase("Admissão: " + relatorio.Admissao.ToString(relatorio.FormatoData) +"     Base Horas: " + relatorio.BaseHoras, fontHeader))
             {
                 Border = Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER,
                 VerticalAlignment = Element.ALIGN_MIDDLE
@@ -173,7 +171,7 @@ namespace PontoPortaria1510.Report.Reports
                 VerticalAlignment = Element.ALIGN_MIDDLE,
             });
             #endregion
-           
+
             TotalizadorHoraSemanal ultimoTotalizador = null;
             //Vai até a última linha mais um, para adicionar o totalizador
             for (int i = 0; i < pontos.Count; i++)
@@ -181,8 +179,8 @@ namespace PontoPortaria1510.Report.Reports
                 DataPonto ponto = pontos[i];
 
                 colunaData = ponto.Data.ToString(relatorio.FormatoData) + " " + ponto.Data.DayOfWeek.DiaExtensoAbreviado();
-                colunaHorario = ponto.Horario != null? String.Join(" ", ponto.Horario.Select(x => x.TotalHoursFormat(relatorio.FormatoHora))):"";
-                colunaBatidas = ponto.Batidas != null? String.Join(" ", ponto.Batidas.Where(x=>x.Tipo != BatidaTipo.Justificada).Select(x => x.Hora.TotalHoursFormat(relatorio.FormatoHora))):"";
+                colunaHorario = ponto.Horario != null ? String.Join(" ", ponto.Horario.Select(x => x.TotalHoursFormat(relatorio.FormatoHora))) : "";
+                colunaBatidas = ponto.Batidas != null ? String.Join(" ", ponto.Batidas.Where(x => x.Tipo != BatidaTipo.Justificada).Select(x => x.Hora.TotalHoursFormat(relatorio.FormatoHora))) : "";
                 if (ponto.Ponto != null)
                 {
                     colunaAdNoturno = ponto.Ponto.AdicionalNoturno.CompareTo(TimeSpan.FromHours(0)) != 0 ? ponto.Ponto.AdicionalNoturno.TotalHoursFormat(relatorio.FormatoHora) : "";
@@ -195,11 +193,11 @@ namespace PontoPortaria1510.Report.Reports
                     colunaDebito = "";
                     colunaCredito = "";
                 }
-               colunaObservacao = ponto.Observacao;
+                colunaObservacao = ponto.Observacao;
 
-                if(ponto.TipoData != TipoData.Normal)
+                if (ponto.TipoData != TipoData.Normal)
                 {
-                    colunaHorario = ponto.LegendaTipoHorario != null?ponto.LegendaTipoHorario:"";
+                    colunaHorario = ponto.LegendaTipoHorario != null ? ponto.LegendaTipoHorario : "";
                 }
 
                 #region Formata nas colunas

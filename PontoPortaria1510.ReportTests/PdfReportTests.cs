@@ -2,6 +2,7 @@
 using PontoPortaria1510.Report;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -124,8 +125,12 @@ namespace PontoPortaria1510.Report.Tests
             });//Debito 00:00, Credito 01:15, Adicional 01:00
 
             dados.Pontos = pontos;
-
-            var gerador = PdfReport.Gerador(PontoReportTipo.Semanal);
+            var handler = new PaginaComRodape()
+            {
+                TextoEsquerda = "Teste escrito\n Teste 2 linha",
+                Logo = Image.FromFile("LogoExemplo.png")
+            };
+            var gerador = PdfReport.Gerador(PontoReportTipo.Semanal, handler);
             using (var stream = new FileStream("ponto.pdf", FileMode.Create))
             {
                 gerador.Write(new List<PontoReportDados>()

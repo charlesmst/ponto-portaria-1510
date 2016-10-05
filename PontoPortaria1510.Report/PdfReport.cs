@@ -1,7 +1,6 @@
-﻿using PontoPortaria1510.Report.Reports;
+﻿
+using PontoPortaria1510.Report.Reports;
 using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace PontoPortaria1510.Report
 {
@@ -9,10 +8,17 @@ namespace PontoPortaria1510.Report
     {
         public static IPontoReport Gerador(PontoReportTipo tipo)
         {
+            return Gerador(tipo, null);
+        }
+        public static IPontoReport Gerador(PontoReportTipo tipo, PageHandler headerFooterHandler)
+        {
             switch (tipo)
             {
                 case PontoReportTipo.Semanal:
-                    return new PontoReportSemanal();
+                    return new PontoReportSemanal()
+                    {
+                        Handler = headerFooterHandler.PdfHandler()
+                    };
                 default:
                     throw new NotImplementedException();                    
             }

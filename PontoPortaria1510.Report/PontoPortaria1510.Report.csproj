@@ -36,6 +36,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,8 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FooterHandler.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="IPontoReport.cs" />
+    <Compile Include="PageHandler.cs" />
+    <Compile Include="PaginaComRodape.cs" />
     <Compile Include="PdfReport.cs" />
     <Compile Include="PontoReportDados.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
