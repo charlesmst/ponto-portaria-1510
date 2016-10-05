@@ -42,7 +42,16 @@ namespace PontoPortaria1510.Report.Reports
             finally
             {
                 if (document.IsOpen())
-                    document.Close();
+                {
+                    try
+                    {
+                        document.Close();
+
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
             }
 
         }
@@ -173,7 +182,7 @@ namespace PontoPortaria1510.Report.Reports
 
                 colunaData = ponto.Data.ToString(relatorio.FormatoData) + " " + ponto.Data.DayOfWeek.DiaExtensoAbreviado();
                 colunaHorario = ponto.Horario != null? String.Join(" ", ponto.Horario.Select(x => x.TotalHoursFormat(relatorio.FormatoHora))):"";
-                colunaBatidas = ponto.Batidas != null? String.Join(" ", ponto.Batidas.Select(x => x.Hora.TotalHoursFormat(relatorio.FormatoHora))):"";
+                colunaBatidas = ponto.Batidas != null? String.Join(" ", ponto.Batidas.Where(x=>x.Tipo != BatidaTipo.Justificada).Select(x => x.Hora.TotalHoursFormat(relatorio.FormatoHora))):"";
                 if (ponto.Ponto != null)
                 {
                     colunaAdNoturno = ponto.Ponto.AdicionalNoturno.CompareTo(TimeSpan.FromHours(0)) != 0 ? ponto.Ponto.AdicionalNoturno.TotalHoursFormat(relatorio.FormatoHora) : "";
