@@ -17,7 +17,7 @@ namespace PontoPortaria1510.Report
                 case PontoReportTipo.Semanal:
                     return new PontoReportSemanal()
                     {
-                        Handler = headerFooterHandler.PdfHandler()
+                        Handler = headerFooterHandler?.PdfHandler()
                     };
                 default:
                     throw new NotImplementedException();                    
