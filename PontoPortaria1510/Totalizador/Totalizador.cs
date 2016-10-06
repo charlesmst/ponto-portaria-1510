@@ -25,7 +25,7 @@ namespace PontoPortaria1510.Totalizador
                 if(totalizador == null)
                 {
                     var primeiroDomingoSemana = data.Data.AddDays(-((int)data.Data.DayOfWeek));
-                    var ultimoDia = primeiroDomingoSemana.AddDays(7);
+                    var ultimoDia = primeiroDomingoSemana.AddDays(6);
                     totalizador = new TotalizadorHoraSemanal();
                     totalizador.Inicio = primeiroDomingoSemana;
                     totalizador.Fim = ultimoDia;

@@ -112,7 +112,7 @@ namespace PontoPortaria1510.Report.Reports
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Colspan = 2
             });
-            table.AddCell(new PdfPCell(new Phrase("Função: " + relatorio.Funcao, fontHeader))
+            table.AddCell(new PdfPCell(new Phrase("Função: " + relatorio.Funcao + "     Base Horas: " + relatorio.BaseHoras, fontHeader))
             {
                 Border = Rectangle.BOTTOM_BORDER,
                 VerticalAlignment = Element.ALIGN_MIDDLE
@@ -123,7 +123,7 @@ namespace PontoPortaria1510.Report.Reports
                 VerticalAlignment = Element.ALIGN_MIDDLE,
                 Colspan = 3
             });
-            table.AddCell(new PdfPCell(new Phrase("Admissão: " + relatorio.Admissao.ToString(relatorio.FormatoData) +"     Base Horas: " + relatorio.BaseHoras, fontHeader))
+            table.AddCell(new PdfPCell(new Phrase("Admissão: " + relatorio.Admissao.ToString(relatorio.FormatoData) + "   Demissão: " + (relatorio.Demissao.HasValue?relatorio.Demissao.Value.ToString(relatorio.FormatoData):"-"), fontHeader))
             {
                 Border = Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER,
                 VerticalAlignment = Element.ALIGN_MIDDLE
@@ -171,12 +171,12 @@ namespace PontoPortaria1510.Report.Reports
                 VerticalAlignment = Element.ALIGN_MIDDLE,
             });
             #endregion
-
-            TotalizadorHoraSemanal ultimoTotalizador = null;
+            DataPonto ponto = pontos.FirstOrDefault();
+            TotalizadorHoraSemanal ultimoTotalizador = totalizadores.FirstOrDefault(x => x.Inicio.Date.CompareTo(ponto.Data.Date) <= 0 && x.Fim.Date.CompareTo(ponto.Data.Date) >= 0); ;
             //Vai até a última linha mais um, para adicionar o totalizador
             for (int i = 0; i < pontos.Count; i++)
             {
-                DataPonto ponto = pontos[i];
+                ponto = pontos[i];
 
                 colunaData = ponto.Data.ToString(relatorio.FormatoData) + " " + ponto.Data.DayOfWeek.DiaExtensoAbreviado();
                 colunaHorario = ponto.Horario != null ? String.Join(" ", ponto.Horario.Select(x => x.TotalHoursFormat(relatorio.FormatoHora))) : "";
@@ -239,8 +239,7 @@ namespace PontoPortaria1510.Report.Reports
                 if (i + 1 < pontos.Count)
                     ponto = pontos[i + 1];
                 var totalizador = totalizadores.First(x => x.Inicio.Date.CompareTo(ponto.Data.Date) <= 0 && x.Fim.Date.CompareTo(ponto.Data.Date) >= 0);
-                if (ultimoTotalizador == null)
-                    ultimoTotalizador = totalizador;
+                
 
                 if (totalizador != ultimoTotalizador || i == (pontos.Count - 1))
                 {
