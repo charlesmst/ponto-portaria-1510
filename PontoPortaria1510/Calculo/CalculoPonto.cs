@@ -60,7 +60,9 @@ namespace PontoPortaria1510.Calculo
             //Variáveis para validar se tem um ponto com mais de 5 min
             var credito10Min = true;
             var debito10Min = true;
-            
+
+            var debitadoAcimaDe5 = 0d;
+            var creditadoAcimaDe5 = 0d;
             foreach (var item in relacao.OrderBy(x=>x.Key))
             {
                 var res = item.Value.Hora.TimeOfDay.TotalMinutes - item.Key.TimeOfDay.TotalMinutes;//Horário - batida
@@ -71,9 +73,10 @@ namespace PontoPortaria1510.Calculo
                     if (res < 0)
                     {
                         diaPonto.Debito = diaPonto.Debito.Add(TimeSpan.FromMinutes(Math.Abs(res)));
-                        if(Math.Abs(res) > 5)
+                        if (Math.Abs(res) > 5)
                         {
-                            debito10Min = false;
+                            //debito10Min = false;
+                            debitadoAcimaDe5 += Math.Abs(res);
                         }
                     }
                     else if (res > 0)
@@ -81,8 +84,10 @@ namespace PontoPortaria1510.Calculo
                         diaPonto.Credito = diaPonto.Credito.Add(TimeSpan.FromMinutes(res));
                         if (Math.Abs(res) > 5)
                         {
-                            credito10Min = false;
+                            //credito10Min = false;
+                            creditadoAcimaDe5 += Math.Abs(res);
                         }
+
                     }
                 }else
                 {
@@ -91,7 +96,8 @@ namespace PontoPortaria1510.Calculo
                         diaPonto.Credito = diaPonto.Credito.Add(TimeSpan.FromMinutes(Math.Abs(res)));
                         if (Math.Abs(res) > 5)
                         {
-                            credito10Min = false;
+                            //credito10Min = false;
+                            creditadoAcimaDe5 += Math.Abs(res);
                         }
                     }
                     else if (res > 0)
@@ -99,7 +105,8 @@ namespace PontoPortaria1510.Calculo
                         diaPonto.Debito = diaPonto.Debito.Add(TimeSpan.FromMinutes(res));
                         if (Math.Abs(res) > 5)
                         {
-                            debito10Min = false;
+                            //debito10Min = false;
+                            debitadoAcimaDe5 += Math.Abs(res);
                         }
                     }
                 }
@@ -135,7 +142,7 @@ namespace PontoPortaria1510.Calculo
             for(int i = 0; i < batidasNaoCalculadas.Count; i = i + 2)
             {
                 //Batidas no meio já invalidam a regra dos 10 min
-                debito10Min = false;
+                //debito10Min = false;
                 credito10Min = false;
                 diaPonto.Credito = diaPonto.Credito.Add(TimeSpan.FromMinutes(batidasNaoCalculadas[i + 1].TimeOfDay.TotalMinutes - batidasNaoCalculadas[i].TimeOfDay.TotalMinutes));
             }
@@ -151,18 +158,18 @@ namespace PontoPortaria1510.Calculo
             {
                 //Batidas no meio já invalidam a regra dos 10 min
                 debito10Min = false;
-                credito10Min = false;
+                //credito10Min = false;
                 diaPonto.Debito = diaPonto.Debito.Add(TimeSpan.FromMinutes(horariosNaoRelacionados[i + 1].TimeOfDay.TotalMinutes - horariosNaoRelacionados[i].TimeOfDay.TotalMinutes));
             }
 
             #region valida a regra dos 10 minutos
             if(debito10Min && diaPonto.Debito.CompareTo(TimeSpan.FromMinutes(10)) <= 0)
             {
-                diaPonto.Debito = TimeSpan.FromMinutes(0);
+                diaPonto.Debito = TimeSpan.FromMinutes(0 + debitadoAcimaDe5);
             }
             if (credito10Min && diaPonto.Credito.CompareTo(TimeSpan.FromMinutes(10)) <= 0)
             {
-                diaPonto.Credito = TimeSpan.FromMinutes(0);
+                diaPonto.Credito = TimeSpan.FromMinutes(0 + creditadoAcimaDe5);
             }
             #endregion
             diaPonto.AdicionalNoturno = CalculaAdicionalNoturno(batidas);
