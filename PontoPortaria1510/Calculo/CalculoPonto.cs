@@ -337,6 +337,10 @@ namespace PontoPortaria1510.Calculo
                             continue;
                         }
 
+                        //Se o horário de entrada não está relacionada a nada, a saida não deve ser relacionada
+                        if (!relacao.ContainsValue(new Horario(horarios[iEntrada],PontoTipo.Entrada)))
+                            continue; 
+
                         //Na saida verifica se existe uma batida de entrada que seja depois do horário de saida, se não pode ser considerada uma batida fora do turno
                         if (batidas.Where((x, i) => i % 2 == 0 && x.TimeOfDay.CompareTo(horario.Hora.TimeOfDay) <= 0).Count() == 0)
                             continue;
@@ -402,6 +406,9 @@ namespace PontoPortaria1510.Calculo
                 {
                     if (relacao[keys[i].Key].Tipo == PontoTipo.Entrada && relacao[keys[i + 1].Key].Tipo == PontoTipo.Entrada)
                         relacao.Remove(keys[i].Key);
+
+                    //if (relacao[keys[i].Key].Tipo == PontoTipo.Saida && relacao[keys[i + 1].Key].Tipo == PontoTipo.Saida)
+                    //    relacao.Remove(keys[i+1].Key);
                 }
             }
             return relacao;

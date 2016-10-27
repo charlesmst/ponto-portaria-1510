@@ -311,6 +311,15 @@ namespace PontoPortaria1510.Calculo.Tests
             batidas = Regex.Split("13:00    19:00", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
             relacao = EncontraBatidaDoHorario(horario, batidas);
             Assert.AreEqual(relacao.Count, 2);
+
+
+
+
+            //Mas se um horário estiver dentro do periodo é válido
+            horario = Regex.Split("07:10 12:10 14:00 17:48", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
+            batidas = Regex.Split("07:11 12:09 18:30 22:10", @"\s+").Select(x => Convert.ToDateTime(x)).ToArray();
+            relacao = EncontraBatidaDoHorario(horario, batidas);
+            Assert.AreEqual(relacao.Count, 2);
         }
         [TestMethod()]
         public void PontosPertosTest()
